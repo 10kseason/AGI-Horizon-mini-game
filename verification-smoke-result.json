@@ -1,0 +1,468 @@
+{
+  "checks": {
+    "started": true,
+    "playerMoved": true,
+    "scoreIncreased": true,
+    "reachedGameOver": true,
+    "restartWorks": true,
+    "copyVisible": true,
+    "noConsoleErrors": true
+  },
+  "initial": {
+    "coordinateSystem": "canvas 960x540, origin top-left, +x right, +y down",
+    "mode": "playing",
+    "score": 0,
+    "best": 0,
+    "timeLeft": 74.38,
+    "shield": 3,
+    "combo": 1,
+    "bugfixCooldown": 0,
+    "player": {
+      "x": 480,
+      "y": 313,
+      "r": 17
+    },
+    "pickups": [
+      {
+        "type": "모델카드",
+        "x": 722,
+        "y": 215,
+        "value": 140
+      },
+      {
+        "type": "토큰",
+        "x": 212,
+        "y": 328,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 559,
+        "y": 93,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 222,
+        "y": 245,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 375,
+        "y": 131,
+        "value": 100
+      },
+      {
+        "type": "논문",
+        "x": 530,
+        "y": 225,
+        "value": 120
+      },
+      {
+        "type": "GPU",
+        "x": 307,
+        "y": 253,
+        "value": 160
+      },
+      {
+        "type": "토큰",
+        "x": 117,
+        "y": 18,
+        "value": 100
+      }
+    ],
+    "hazards": [
+      {
+        "type": "환각",
+        "x": 252,
+        "y": 199
+      },
+      {
+        "type": "한도초과",
+        "x": 626,
+        "y": 244
+      },
+      {
+        "type": "렉",
+        "x": 750,
+        "y": 211
+      },
+      {
+        "type": "도배기",
+        "x": 602,
+        "y": 17
+      }
+    ],
+    "runId": "TG-260530-MVHFB"
+  },
+  "afterMovement": {
+    "coordinateSystem": "canvas 960x540, origin top-left, +x right, +y down",
+    "mode": "playing",
+    "score": 0,
+    "best": 0,
+    "timeLeft": 72.05,
+    "shield": 2,
+    "combo": 1,
+    "bugfixCooldown": 0,
+    "player": {
+      "x": 639,
+      "y": 423,
+      "r": 17
+    },
+    "pickups": [
+      {
+        "type": "모델카드",
+        "x": 722,
+        "y": 216,
+        "value": 140
+      },
+      {
+        "type": "토큰",
+        "x": 218,
+        "y": 328,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 514,
+        "y": 114,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 206,
+        "y": 253,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 362,
+        "y": 155,
+        "value": 100
+      },
+      {
+        "type": "논문",
+        "x": 523,
+        "y": 250,
+        "value": 120
+      },
+      {
+        "type": "GPU",
+        "x": 352,
+        "y": 248,
+        "value": 160
+      },
+      {
+        "type": "토큰",
+        "x": 139,
+        "y": 178,
+        "value": 100
+      }
+    ],
+    "hazards": [
+      {
+        "type": "환각",
+        "x": 397,
+        "y": 239
+      },
+      {
+        "type": "렉",
+        "x": 584,
+        "y": 255
+      },
+      {
+        "type": "도배기",
+        "x": 590,
+        "y": 171
+      },
+      {
+        "type": "환각",
+        "x": 51,
+        "y": 417
+      },
+      {
+        "type": "도배기",
+        "x": 961,
+        "y": 459
+      }
+    ],
+    "runId": "TG-260530-MVHFB"
+  },
+  "afterPickup": {
+    "coordinateSystem": "canvas 960x540, origin top-left, +x right, +y down",
+    "mode": "playing",
+    "score": 839,
+    "best": 0,
+    "timeLeft": 71.99,
+    "shield": 2,
+    "combo": 1.08,
+    "bugfixCooldown": 0,
+    "player": {
+      "x": 640,
+      "y": 424,
+      "r": 17
+    },
+    "pickups": [
+      {
+        "type": "모델카드",
+        "x": 722,
+        "y": 216,
+        "value": 140
+      },
+      {
+        "type": "토큰",
+        "x": 218,
+        "y": 328,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 513,
+        "y": 115,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 206,
+        "y": 254,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 362,
+        "y": 155,
+        "value": 100
+      },
+      {
+        "type": "논문",
+        "x": 523,
+        "y": 251,
+        "value": 120
+      },
+      {
+        "type": "GPU",
+        "x": 354,
+        "y": 248,
+        "value": 160
+      },
+      {
+        "type": "토큰",
+        "x": 139,
+        "y": 182,
+        "value": 100
+      }
+    ],
+    "hazards": [
+      {
+        "type": "환각",
+        "x": 401,
+        "y": 240
+      },
+      {
+        "type": "렉",
+        "x": 579,
+        "y": 255
+      },
+      {
+        "type": "도배기",
+        "x": 590,
+        "y": 176
+      },
+      {
+        "type": "환각",
+        "x": 54,
+        "y": 417
+      },
+      {
+        "type": "도배기",
+        "x": 957,
+        "y": 457
+      }
+    ],
+    "runId": "TG-260530-MVHFB"
+  },
+  "finalState": {
+    "coordinateSystem": "canvas 960x540, origin top-left, +x right, +y down",
+    "mode": "gameover",
+    "score": 3839,
+    "best": 3839,
+    "timeLeft": 0,
+    "shield": 2,
+    "combo": 1.08,
+    "bugfixCooldown": 0,
+    "player": {
+      "x": 640,
+      "y": 425,
+      "r": 17
+    },
+    "pickups": [
+      {
+        "type": "모델카드",
+        "x": 723,
+        "y": 216,
+        "value": 140
+      },
+      {
+        "type": "토큰",
+        "x": 220,
+        "y": 328,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 512,
+        "y": 115,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 206,
+        "y": 254,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 363,
+        "y": 157,
+        "value": 100
+      },
+      {
+        "type": "논문",
+        "x": 522,
+        "y": 252,
+        "value": 120
+      },
+      {
+        "type": "GPU",
+        "x": 356,
+        "y": 248,
+        "value": 160
+      },
+      {
+        "type": "토큰",
+        "x": 138,
+        "y": 189,
+        "value": 100
+      }
+    ],
+    "hazards": [
+      {
+        "type": "환각",
+        "x": 408,
+        "y": 241
+      },
+      {
+        "type": "렉",
+        "x": 571,
+        "y": 257
+      },
+      {
+        "type": "도배기",
+        "x": 589,
+        "y": 183
+      },
+      {
+        "type": "환각",
+        "x": 60,
+        "y": 415
+      },
+      {
+        "type": "도배기",
+        "x": 952,
+        "y": 453
+      }
+    ],
+    "runId": "TG-260530-MVHFB"
+  },
+  "restartState": {
+    "coordinateSystem": "canvas 960x540, origin top-left, +x right, +y down",
+    "mode": "playing",
+    "score": 0,
+    "best": 3839,
+    "timeLeft": 74.88,
+    "shield": 3,
+    "combo": 1,
+    "bugfixCooldown": 0,
+    "player": {
+      "x": 480,
+      "y": 313,
+      "r": 17
+    },
+    "pickups": [
+      {
+        "type": "모델카드",
+        "x": 717,
+        "y": 215,
+        "value": 140
+      },
+      {
+        "type": "토큰",
+        "x": 204,
+        "y": 328,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 562,
+        "y": 89,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 220,
+        "y": 243,
+        "value": 100
+      },
+      {
+        "type": "토큰",
+        "x": 374,
+        "y": 126,
+        "value": 100
+      },
+      {
+        "type": "논문",
+        "x": 528,
+        "y": 219,
+        "value": 120
+      },
+      {
+        "type": "GPU",
+        "x": 298,
+        "y": 253,
+        "value": 160
+      },
+      {
+        "type": "토큰",
+        "x": 117,
+        "y": -16,
+        "value": 100
+      }
+    ],
+    "hazards": [
+      {
+        "type": "환각",
+        "x": 216,
+        "y": 189
+      },
+      {
+        "type": "한도초과",
+        "x": 623,
+        "y": 204
+      },
+      {
+        "type": "렉",
+        "x": 781,
+        "y": 200
+      },
+      {
+        "type": "도배기",
+        "x": 598,
+        "y": -17
+      }
+    ],
+    "runId": "TG-260530-MVI9S"
+  },
+  "scoreline": "[특갤 게임 대회] AGI Horizon 점수 3839 / 최고 3839 / 런 TG-260530-MVHFB / 결과 완주 / 시드 260530",
+  "errors": []
+}

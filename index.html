@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>특갤 원샷: AGI Horizon</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f4f7fb;
+      --muted: #a9b4c4;
+      --line: rgba(255, 255, 255, 0.18);
+      --panel: rgba(9, 15, 24, 0.82);
+      --accent: #48e4c2;
+      --warn: #ffcc59;
+      --bad: #ff5e78;
+      --blue: #72a8ff;
+      --bg: #080d14;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Noto Sans KR", system-ui, sans-serif;
+      letter-spacing: 0;
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .shell {
+      width: min(100vw, 1180px);
+      height: min(100vh, 720px);
+      min-height: 560px;
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(72, 228, 194, 0.12), transparent 25%),
+        radial-gradient(circle at 86% 90%, rgba(114, 168, 255, 0.13), transparent 30%),
+        #080d14;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.38);
+    }
+
+    .topbar,
+    .bottombar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(5, 10, 17, 0.76);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+      backdrop-filter: blur(12px);
+      z-index: 5;
+    }
+
+    .bottombar {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #48e4c2, #72a8ff);
+      color: #061019;
+      font-weight: 900;
+      box-shadow: 0 0 24px rgba(72, 228, 194, 0.28);
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      min-width: 76px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.055);
+      text-align: right;
+      line-height: 1.05;
+    }
+
+    .pill b {
+      display: block;
+      font-size: 18px;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pill small {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .playfield {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      padding: 14px;
+    }
+
+    canvas {
+      width: min(100%, calc((100vh - 122px) * 16 / 9));
+      max-height: calc(100vh - 122px);
+      aspect-ratio: 16 / 9;
+      background: #0a111b;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 16px 44px rgba(0, 0, 0, 0.32);
+      touch-action: none;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 14px;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .menu {
+      width: min(560px, calc(100% - 24px));
+      padding: 22px;
+      border-radius: 8px;
+      background: rgba(7, 13, 22, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.34);
+      pointer-events: auto;
+    }
+
+    .menu[hidden] {
+      display: none;
+    }
+
+    .menu h2 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.02;
+    }
+
+    .menu p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.055);
+      min-height: 74px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 14px;
+      background: #e8f8ff;
+      color: #07111b;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(72, 228, 194, 0.54);
+      outline-offset: 2px;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(3, 8, 14, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--ink);
+      font-size: 13px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 160ms ease;
+      z-index: 7;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .kbd {
+      display: inline-grid;
+      place-items: center;
+      min-width: 24px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .scoreline {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(72, 228, 194, 0.08);
+      border: 1px solid rgba(72, 228, 194, 0.22);
+      color: #d9fff7;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        width: 100vw;
+        height: 100vh;
+        min-height: 0;
+        border: 0;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .brand h1 {
+        font-size: 15px;
+      }
+
+      .brand span,
+      .bottombar {
+        font-size: 11px;
+      }
+
+      .hud {
+        gap: 5px;
+      }
+
+      .pill {
+        min-width: 58px;
+        padding: 6px 7px;
+      }
+
+      .pill b {
+        font-size: 15px;
+      }
+
+      .menu {
+        padding: 16px;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" id="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">특</div>
+        <div>
+          <h1>특갤 원샷: AGI Horizon</h1>
+          <span>Don't Die. 점수표는 로컬에 저장됩니다.</span>
+        </div>
+      </div>
+      <section class="hud" aria-label="게임 점수판">
+        <div class="pill"><small>Score</small><b id="score">0</b></div>
+        <div class="pill"><small>Best</small><b id="best">0</b></div>
+        <div class="pill"><small>Time</small><b id="time">75</b></div>
+        <div class="pill"><small>Shield</small><b id="shield">3</b></div>
+        <div class="pill"><small>Combo</small><b id="combo">x1.0</b></div>
+      </section>
+    </header>
+
+    <section class="playfield">
+      <canvas id="game" width="960" height="540" aria-label="특갤 AGI Horizon 게임 화면"></canvas>
+      <div class="overlay">
+        <article class="menu" id="menu">
+          <h2 id="menu-title">논문과 토큰을 줍고 환각을 피하세요</h2>
+          <p id="menu-copy">75초 동안 특이점 게이지를 올립니다. 점수는 수집, 콤보, 남은 쉴드로 계산되고 최고점은 브라우저에 남습니다.</p>
+          <div class="menu-grid">
+            <div class="stat"><strong>이동</strong><span><span class="kbd">WASD</span> <span class="kbd">←↑↓→</span> 또는 드래그</span></div>
+            <div class="stat"><strong>버그픽스</strong><span><span class="kbd">Space</span>로 근처 환각 제거, 쿨다운 있음</span></div>
+            <div class="stat"><strong>증빙</strong><span>게임오버 점수표를 복사해서 제출 글에 붙이면 됩니다.</span></div>
+          </div>
+          <div class="buttons">
+            <button id="start-btn">시작</button>
+            <button class="secondary" id="copy-btn" hidden>점수표 복사</button>
+            <button class="secondary" id="reset-best-btn">최고점 초기화</button>
+          </div>
+          <div class="scoreline" id="scoreline" hidden></div>
+        </article>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+
+    <footer class="bottombar">
+      <span>수집: 논문, GPU, 토큰, 모델카드</span>
+      <span><span class="kbd">P</span> 일시정지 <span class="kbd">R</span> 재시작 <span class="kbd">F</span> 전체화면</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const shell = document.getElementById("shell");
+      const menu = document.getElementById("menu");
+      const menuTitle = document.getElementById("menu-title");
+      const menuCopy = document.getElementById("menu-copy");
+      const startBtn = document.getElementById("start-btn");
+      const copyBtn = document.getElementById("copy-btn");
+      const resetBestBtn = document.getElementById("reset-best-btn");
+      const scoreline = document.getElementById("scoreline");
+      const toast = document.getElementById("toast");
+
+      const hud = {
+        score: document.getElementById("score"),
+        best: document.getElementById("best"),
+        time: document.getElementById("time"),
+        shield: document.getElementById("shield"),
+        combo: document.getElementById("combo"),
+      };
+
+      const W = canvas.width;
+      const H = canvas.height;
+      const RUN_SEED = 260530;
+      const BEST_KEY = "singularity-one-shot-best-v1";
+      const keys = new Set();
+      let rafId = 0;
+      let lastFrame = 0;
+      let toastTimer = 0;
+      let pointer = null;
+
+      const pickupTypes = [
+        { label: "논문", value: 120, color: "#f7e58b", glyph: "P" },
+        { label: "GPU", value: 160, color: "#72a8ff", glyph: "G" },
+        { label: "토큰", value: 100, color: "#48e4c2", glyph: "T" },
+        { label: "모델카드", value: 140, color: "#d89bff", glyph: "M" },
+      ];
+
+      const hazardTypes = [
+        { label: "환각", color: "#ff5e78", glyph: "!" },
+        { label: "한도초과", color: "#ff9f5a", glyph: "429" },
+        { label: "도배기", color: "#c75cff", glyph: "D" },
+        { label: "렉", color: "#9ba8b8", glyph: "~" },
+      ];
+
+      const state = {
+        mode: "start",
+        rng: mulberry32(RUN_SEED),
+        elapsed: 0,
+        timeLeft: 75,
+        score: 0,
+        best: Number(localStorage.getItem(BEST_KEY) || "0"),
+        shield: 3,
+        combo: 1,
+        streak: 0,
+        bugfixCooldown: 0,
+        pulse: 0,
+        spawnClock: 0,
+        hazardClock: 0,
+        difficulty: 1,
+        runId: "",
+        player: { x: W * 0.5, y: H * 0.55, vx: 0, vy: 0, r: 17 },
+        pickups: [],
+        hazards: [],
+        particles: [],
+        messages: [],
+      };
+
+      function mulberry32(seed) {
+        let t = seed >>> 0;
+        return function next() {
+          t += 0x6D2B79F5;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function dist(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+      }
+
+      function rand(min, max) {
+        return min + (max - min) * state.rng();
+      }
+
+      function choice(list) {
+        return list[Math.floor(state.rng() * list.length)];
+      }
+
+      function resetGame() {
+        state.rng = mulberry32(RUN_SEED);
+        state.mode = "playing";
+        state.elapsed = 0;
+        state.timeLeft = 75;
+        state.score = 0;
+        state.shield = 3;
+        state.combo = 1;
+        state.streak = 0;
+        state.bugfixCooldown = 0;
+        state.pulse = 0;
+        state.spawnClock = 0;
+        state.hazardClock = 0;
+        state.difficulty = 1;
+        state.runId = `TG-${RUN_SEED}-${Date.now().toString(36).slice(-5).toUpperCase()}`;
+        state.player.x = W * 0.5;
+        state.player.y = H * 0.58;
+        state.player.vx = 0;
+        state.player.vy = 0;
+        state.pickups.length = 0;
+        state.hazards.length = 0;
+        state.particles.length = 0;
+        state.messages.length = 0;
+        scoreline.hidden = true;
+        copyBtn.hidden = true;
+        menu.hidden = true;
+        toastText("원샷 시작");
+        updateHud();
+        for (let i = 0; i < 7; i += 1) spawnPickup(true);
+        for (let i = 0; i < 3; i += 1) spawnHazard(true);
+      }
+
+      function pauseGame() {
+        if (state.mode === "playing") {
+          state.mode = "paused";
+          showMenu("잠깐 멈춤", "다시 시작하면 같은 런이 이어집니다.", "계속");
+        } else if (state.mode === "paused") {
+          state.mode = "playing";
+          menu.hidden = true;
+        }
+      }
+
+      function showMenu(title, copy, buttonLabel) {
+        menuTitle.textContent = title;
+        menuCopy.textContent = copy;
+        startBtn.textContent = buttonLabel;
+        menu.hidden = false;
+      }
+
+      function endGame(reason) {
+        if (state.mode === "gameover") return;
+        state.mode = "gameover";
+        const shieldBonus = state.shield * 750;
+        const survivalBonus = reason === "complete" ? 1500 : 0;
+        state.score += shieldBonus + survivalBonus;
+        state.score = Math.max(0, Math.round(state.score));
+        if (state.score > state.best) {
+          state.best = state.score;
+          localStorage.setItem(BEST_KEY, String(state.best));
+        }
+        const line = buildScoreLine(reason);
+        scoreline.textContent = line;
+        scoreline.hidden = false;
+        copyBtn.hidden = false;
+        showMenu(
+          reason === "complete" ? "특이점 게이지 제출 준비 완료" : "런 종료",
+          `최종 점수 ${state.score.toLocaleString("ko-KR")}점. 최고점 ${state.best.toLocaleString("ko-KR")}점.`,
+          "다시 도전"
+        );
+        updateHud();
+      }
+
+      function buildScoreLine(reason) {
+        return `[특갤 게임 대회] AGI Horizon 점수 ${state.score} / 최고 ${state.best} / 런 ${state.runId} / 결과 ${reason === "complete" ? "완주" : "쉴드소진"} / 시드 ${RUN_SEED}`;
+      }
+
+      function copyScoreLine() {
+        const text = scoreline.textContent || buildScoreLine(state.mode === "gameover" ? "complete" : "active");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            () => toastText("점수표 복사 완료"),
+            () => fallbackCopy(text)
+          );
+          return;
+        }
+        fallbackCopy(text);
+      }
+
+      function fallbackCopy(text) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        try {
+          document.execCommand("copy");
+          toastText("점수표 복사 완료");
+        } catch {
+          toastText("복사 실패: 점수표를 직접 선택하세요");
+        }
+        area.remove();
+      }
+
+      function resetBest() {
+        localStorage.removeItem(BEST_KEY);
+        state.best = 0;
+        updateHud();
+        toastText("최고점 초기화");
+      }
+
+      function spawnPickup(initial = false) {
+        const type = choice(pickupTypes);
+        state.pickups.push({
+          kind: "pickup",
+          type: type.label,
+          value: type.value,
+          color: type.color,
+          glyph: type.glyph,
+          x: initial ? rand(80, W - 80) : rand(40, W - 40),
+          y: initial ? rand(86, H - 70) : -24,
+          r: rand(11, 15),
+          vy: initial ? rand(-8, 16) : rand(36, 74) + state.difficulty * 7,
+          vx: rand(-20, 20),
+          spin: rand(-3, 3),
+          age: 0,
+        });
+      }
+
+      function spawnHazard(initial = false) {
+        const type = choice(hazardTypes);
+        const edge = Math.floor(rand(0, 4));
+        let x = rand(30, W - 30);
+        let y = rand(80, H - 40);
+        if (!initial) {
+          if (edge === 0) y = -26;
+          if (edge === 1) x = W + 26;
+          if (edge === 2) y = H + 26;
+          if (edge === 3) x = -26;
+        }
+        const target = { x: rand(W * 0.2, W * 0.8), y: rand(H * 0.22, H * 0.88) };
+        const angle = Math.atan2(target.y - y, target.x - x);
+        const speed = rand(35, 70) + state.difficulty * 10;
+        state.hazards.push({
+          kind: "hazard",
+          type: type.label,
+          color: type.color,
+          glyph: type.glyph,
+          x,
+          y,
+          r: rand(15, 22),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          wobble: rand(1.5, 4.5),
+          age: 0,
+        });
+      }
+
+      function addParticles(x, y, color, count, power = 1) {
+        for (let i = 0; i < count; i += 1) {
+          const a = rand(0, Math.PI * 2);
+          const s = rand(35, 160) * power;
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            life: rand(0.28, 0.72),
+            maxLife: 0.72,
+            color,
+            size: rand(1.5, 4.5),
+          });
+        }
+      }
+
+      function addMessage(text, x, y, color = "#f4f7fb") {
+        state.messages.push({ text, x, y, color, life: 0.88 });
+      }
+
+      function useBugfixPulse() {
+        if (state.mode !== "playing" || state.bugfixCooldown > 0) return;
+        state.bugfixCooldown = 8.5;
+        state.pulse = 0.34;
+        let cleared = 0;
+        for (let i = state.hazards.length - 1; i >= 0; i -= 1) {
+          const h = state.hazards[i];
+          if (dist(state.player, h) < 148) {
+            addParticles(h.x, h.y, "#48e4c2", 12, 1.2);
+            state.hazards.splice(i, 1);
+            cleared += 1;
+          }
+        }
+        if (cleared) {
+          const gain = cleared * 180;
+          state.score += gain;
+          addMessage(`버그수정 +${gain}`, state.player.x, state.player.y - 28, "#48e4c2");
+        } else {
+          addMessage("주변 클린", state.player.x, state.player.y - 28, "#a9b4c4");
+        }
+      }
+
+      function update(dt) {
+        if (state.mode !== "playing") return;
+        const scaledDt = Math.min(dt, 1 / 20);
+        state.elapsed += scaledDt;
+        state.timeLeft = Math.max(0, 75 - state.elapsed);
+        state.difficulty = 1 + state.elapsed / 55;
+        state.spawnClock -= scaledDt;
+        state.hazardClock -= scaledDt;
+        state.bugfixCooldown = Math.max(0, state.bugfixCooldown - scaledDt);
+        state.pulse = Math.max(0, state.pulse - scaledDt);
+
+        if (state.spawnClock <= 0) {
+          spawnPickup(false);
+          state.spawnClock = Math.max(0.32, 0.88 - state.elapsed * 0.006);
+        }
+        if (state.hazardClock <= 0) {
+          spawnHazard(false);
+          state.hazardClock = Math.max(0.42, 1.25 - state.elapsed * 0.007);
+        }
+
+        updatePlayer(scaledDt);
+        updateEntities(scaledDt);
+        updateParticles(scaledDt);
+        updateMessages(scaledDt);
+        handleCollisions();
+
+        if (state.timeLeft <= 0) endGame("complete");
+        updateHud();
+      }
+
+      function updatePlayer(dt) {
+        let ax = 0;
+        let ay = 0;
+        if (keys.has("ArrowLeft") || keys.has("KeyA")) ax -= 1;
+        if (keys.has("ArrowRight") || keys.has("KeyD")) ax += 1;
+        if (keys.has("ArrowUp") || keys.has("KeyW")) ay -= 1;
+        if (keys.has("ArrowDown") || keys.has("KeyS")) ay += 1;
+        if (pointer) {
+          const dx = pointer.x - state.player.x;
+          const dy = pointer.y - state.player.y;
+          const len = Math.hypot(dx, dy);
+          if (len > 4) {
+            ax += dx / Math.max(1, len);
+            ay += dy / Math.max(1, len);
+          }
+        }
+        const mag = Math.hypot(ax, ay) || 1;
+        ax /= mag;
+        ay /= mag;
+        const speed = pointer ? 430 : 520;
+        state.player.vx += ax * speed * dt;
+        state.player.vy += ay * speed * dt;
+        state.player.vx *= Math.pow(0.058, dt);
+        state.player.vy *= Math.pow(0.058, dt);
+        state.player.x = clamp(state.player.x + state.player.vx * dt, 26, W - 26);
+        state.player.y = clamp(state.player.y + state.player.vy * dt, 76, H - 28);
+      }
+
+      function updateEntities(dt) {
+        for (const p of state.pickups) {
+          p.age += dt;
+          p.x += Math.sin(p.age * 2 + p.spin) * 10 * dt + p.vx * dt;
+          p.y += p.vy * dt;
+        }
+        for (let i = state.pickups.length - 1; i >= 0; i -= 1) {
+          const p = state.pickups[i];
+          if (p.y > H + 30 || p.x < -40 || p.x > W + 40) state.pickups.splice(i, 1);
+        }
+        for (const h of state.hazards) {
+          h.age += dt;
+          h.x += h.vx * dt + Math.sin(h.age * h.wobble) * 12 * dt;
+          h.y += h.vy * dt + Math.cos(h.age * h.wobble) * 8 * dt;
+        }
+        for (let i = state.hazards.length - 1; i >= 0; i -= 1) {
+          const h = state.hazards[i];
+          if (h.x < -80 || h.x > W + 80 || h.y < -90 || h.y > H + 90) state.hazards.splice(i, 1);
+        }
+      }
+
+      function updateParticles(dt) {
+        for (const p of state.particles) {
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vx *= Math.pow(0.08, dt);
+          p.vy *= Math.pow(0.08, dt);
+          p.life -= dt;
+        }
+        for (let i = state.particles.length - 1; i >= 0; i -= 1) {
+          if (state.particles[i].life <= 0) state.particles.splice(i, 1);
+        }
+      }
+
+      function updateMessages(dt) {
+        for (const m of state.messages) {
+          m.y -= 26 * dt;
+          m.life -= dt;
+        }
+        for (let i = state.messages.length - 1; i >= 0; i -= 1) {
+          if (state.messages[i].life <= 0) state.messages.splice(i, 1);
+        }
+      }
+
+      function handleCollisions() {
+        for (let i = state.pickups.length - 1; i >= 0; i -= 1) {
+          const p = state.pickups[i];
+          if (dist(state.player, p) < state.player.r + p.r) {
+            state.streak += 1;
+            state.combo = clamp(1 + state.streak * 0.08, 1, 4);
+            const gain = Math.round(p.value * state.combo);
+            state.score += gain;
+            addParticles(p.x, p.y, p.color, 10);
+            addMessage(`+${gain}`, p.x, p.y, p.color);
+            state.pickups.splice(i, 1);
+          }
+        }
+        for (let i = state.hazards.length - 1; i >= 0; i -= 1) {
+          const h = state.hazards[i];
+          if (dist(state.player, h) < state.player.r + h.r - 2) {
+            state.shield -= 1;
+            state.streak = 0;
+            state.combo = 1;
+            state.score = Math.max(0, state.score - 220);
+            state.bugfixCooldown = Math.max(1.1, state.bugfixCooldown);
+            addParticles(h.x, h.y, h.color, 18, 1.35);
+            addMessage(h.type, h.x, h.y, h.color);
+            state.hazards.splice(i, 1);
+            if (navigator.vibrate) navigator.vibrate(40);
+            if (state.shield <= 0) endGame("shield");
+          }
+        }
+      }
+
+      function draw() {
+        drawBackground();
+        for (const p of state.pickups) drawPickup(p);
+        for (const h of state.hazards) drawHazard(h);
+        drawPlayer();
+        for (const p of state.particles) drawParticle(p);
+        for (const m of state.messages) drawMessage(m);
+        if (state.mode === "paused") drawPauseWash();
+        if (state.pulse > 0) drawPulse();
+      }
+
+      function drawBackground() {
+        const g = ctx.createLinearGradient(0, 0, W, H);
+        g.addColorStop(0, "#08121f");
+        g.addColorStop(0.45, "#0c1724");
+        g.addColorStop(1, "#111827");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.save();
+        ctx.globalAlpha = 0.22;
+        ctx.strokeStyle = "#48e4c2";
+        ctx.lineWidth = 1;
+        for (let x = -40; x <= W + 40; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x + Math.sin(state.elapsed * 0.4 + x) * 6, 64);
+          ctx.lineTo(x - 90, H);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = "#72a8ff";
+        for (let y = 82; y <= H; y += 38) {
+          ctx.beginPath();
+          ctx.moveTo(0, y + Math.cos(state.elapsed * 0.35 + y) * 4);
+          ctx.lineTo(W, y + Math.sin(state.elapsed * 0.35 + y) * 4);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = 0.16;
+        for (let i = 0; i < 38; i += 1) {
+          const x = (i * 137 + state.elapsed * 12) % W;
+          const y = 84 + ((i * 73) % (H - 110));
+          ctx.fillStyle = i % 2 ? "#48e4c2" : "#72a8ff";
+          ctx.beginPath();
+          ctx.arc(x, y, 2 + (i % 3), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        ctx.fillStyle = "rgba(5, 10, 17, 0.58)";
+        ctx.fillRect(0, 0, W, 58);
+        ctx.fillStyle = "rgba(244, 247, 251, 0.88)";
+        ctx.font = "700 18px Segoe UI, sans-serif";
+        ctx.fillText("AGI Horizon", 22, 35);
+        ctx.fillStyle = "rgba(169, 180, 196, 0.92)";
+        ctx.font = "13px Segoe UI, sans-serif";
+        ctx.fillText(`seed ${RUN_SEED} · cooldown ${state.bugfixCooldown.toFixed(1)}s`, 142, 35);
+      }
+
+      function drawPickup(p) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.age * p.spin);
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = p.color;
+        roundRect(-p.r, -p.r, p.r * 2, p.r * 2, 6);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#061019";
+        ctx.font = "900 12px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.glyph, 0, 1);
+        ctx.restore();
+      }
+
+      function drawHazard(h) {
+        ctx.save();
+        ctx.translate(h.x, h.y);
+        ctx.rotate(Math.sin(h.age * 3) * 0.35);
+        ctx.shadowColor = h.color;
+        ctx.shadowBlur = 20;
+        ctx.strokeStyle = h.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let i = 0; i < 8; i += 1) {
+          const a = (Math.PI * 2 * i) / 8;
+          const r = i % 2 ? h.r * 0.58 : h.r;
+          const x = Math.cos(a) * r;
+          const y = Math.sin(a) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fillStyle = "rgba(7, 13, 22, 0.8)";
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = h.color;
+        ctx.font = "900 11px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(h.glyph, 0, 0);
+        ctx.restore();
+      }
+
+      function drawPlayer() {
+        const p = state.player;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        const t = state.elapsed * 5;
+        ctx.strokeStyle = "rgba(72, 228, 194, 0.38)";
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i += 1) {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.r + 8 + i * 6, t + i, t + i + Math.PI * 1.35);
+          ctx.stroke();
+        }
+        ctx.shadowColor = "#48e4c2";
+        ctx.shadowBlur = 22;
+        const g = ctx.createRadialGradient(-6, -7, 2, 0, 0, p.r + 5);
+        g.addColorStop(0, "#ffffff");
+        g.addColorStop(0.22, "#96fff0");
+        g.addColorStop(1, "#148a7f");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#061019";
+        ctx.font = "900 15px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("AI", 0, 1);
+        ctx.restore();
+      }
+
+      function drawParticle(p) {
+        const alpha = clamp(p.life / p.maxLife, 0, 1);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawMessage(m) {
+        ctx.save();
+        ctx.globalAlpha = clamp(m.life / 0.88, 0, 1);
+        ctx.fillStyle = m.color;
+        ctx.font = "900 16px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.55)";
+        ctx.lineWidth = 4;
+        ctx.strokeText(m.text, m.x, m.y);
+        ctx.fillText(m.text, m.x, m.y);
+        ctx.restore();
+      }
+
+      function drawPulse() {
+        const progress = 1 - state.pulse / 0.34;
+        ctx.save();
+        ctx.globalAlpha = 1 - progress;
+        ctx.strokeStyle = "#48e4c2";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(state.player.x, state.player.y, 24 + progress * 150, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawPauseWash() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      function updateHud() {
+        hud.score.textContent = Math.round(state.score).toLocaleString("ko-KR");
+        hud.best.textContent = Math.round(state.best).toLocaleString("ko-KR");
+        hud.time.textContent = Math.ceil(state.timeLeft).toString();
+        hud.shield.textContent = state.shield.toString();
+        hud.combo.textContent = `x${state.combo.toFixed(1)}`;
+      }
+
+      function toastText(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1200);
+      }
+
+      function loop(ts) {
+        if (!lastFrame) lastFrame = ts;
+        const dt = Math.min(0.05, (ts - lastFrame) / 1000);
+        lastFrame = ts;
+        update(dt);
+        draw();
+        rafId = requestAnimationFrame(loop);
+      }
+
+      function canvasPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: ((event.clientX - rect.left) / rect.width) * W,
+          y: ((event.clientY - rect.top) / rect.height) * H,
+        };
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          shell.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      }
+
+      function renderGameToText() {
+        return JSON.stringify({
+          coordinateSystem: "canvas 960x540, origin top-left, +x right, +y down",
+          mode: state.mode,
+          score: Math.round(state.score),
+          best: Math.round(state.best),
+          timeLeft: Number(state.timeLeft.toFixed(2)),
+          shield: state.shield,
+          combo: Number(state.combo.toFixed(2)),
+          bugfixCooldown: Number(state.bugfixCooldown.toFixed(2)),
+          player: {
+            x: Math.round(state.player.x),
+            y: Math.round(state.player.y),
+            r: state.player.r,
+          },
+          pickups: state.pickups.slice(0, 8).map((p) => ({
+            type: p.type,
+            x: Math.round(p.x),
+            y: Math.round(p.y),
+            value: p.value,
+          })),
+          hazards: state.hazards.slice(0, 8).map((h) => ({
+            type: h.type,
+            x: Math.round(h.x),
+            y: Math.round(h.y),
+          })),
+          runId: state.runId,
+        });
+      }
+
+      window.render_game_to_text = renderGameToText;
+      window.advanceTime = (ms) => {
+        const steps = Math.max(1, Math.round(ms / (1000 / 60)));
+        for (let i = 0; i < steps; i += 1) update(1 / 60);
+        draw();
+      };
+      window.__singularityGame = {
+        start: resetGame,
+        pulse: useBugfixPulse,
+        state,
+      };
+
+      startBtn.addEventListener("click", () => {
+        if (state.mode === "paused") {
+          pauseGame();
+        } else {
+          resetGame();
+        }
+      });
+      copyBtn.addEventListener("click", copyScoreLine);
+      resetBestBtn.addEventListener("click", resetBest);
+      window.addEventListener("keydown", (event) => {
+        keys.add(event.code);
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
+          event.preventDefault();
+        }
+        if (event.code === "Enter" && (state.mode === "start" || state.mode === "gameover")) resetGame();
+        if (event.code === "Space") useBugfixPulse();
+        if (event.code === "KeyP") pauseGame();
+        if (event.code === "KeyR") resetGame();
+        if (event.code === "KeyF") toggleFullscreen();
+      }, { passive: false });
+      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      canvas.addEventListener("pointerdown", (event) => {
+        pointer = canvasPoint(event);
+        canvas.setPointerCapture(event.pointerId);
+      });
+      canvas.addEventListener("pointermove", (event) => {
+        if (pointer) pointer = canvasPoint(event);
+      });
+      canvas.addEventListener("pointerup", () => {
+        pointer = null;
+      });
+      canvas.addEventListener("pointercancel", () => {
+        pointer = null;
+      });
+
+      updateHud();
+      draw();
+      rafId = requestAnimationFrame(loop);
+      window.addEventListener("beforeunload", () => cancelAnimationFrame(rafId));
+    })();
+  </script>
+</body>
+</html>
